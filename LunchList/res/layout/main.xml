@@ -1,43 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:stretchColumns="1"
     >
-	<LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Name:"
-            />
-        <EditText android:id="@+id/name"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            />
-    </LinearLayout>
-	<LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Address:"
-            />
-        <EditText android:id="@+id/addr"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            />
-    </LinearLayout>
+    <TableRow>
+        <TextView android:text="Name:" />
+        <EditText android:id="@+id/name" />
+    </TableRow>
+    <TableRow>
+        <TextView android:text="Address:" />
+        <EditText android:id="@+id/addr" />
+    </TableRow>
+    <TableRow>
+        <TextView android:text="Type:" />
+        <RadioGroup android:id="@+id/types">
+            <RadioButton android:id="@+id/take_out"
+                android:text="Take-Out"
+                />
+            <RadioButton android:id="@+id/sit_down"
+                android:text="Sit-Down"
+                />
+            <RadioButton android:id="@+id/delivery"
+                android:text="Delivery"
+                />
+        </RadioGroup>
+    </TableRow>
     <Button android:id="@+id/save"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Save"
         />
-</LinearLayout>
+</TableLayout>
 
