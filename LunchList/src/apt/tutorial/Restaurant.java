@@ -3,7 +3,7 @@ package apt.tutorial;
 public class Restaurant {
     private String name="";
     private String address="";
-	private String type="";
+    private String type="";
     
     public String getName() {
         return name;
@@ -27,5 +27,9 @@ public class Restaurant {
     
     public void setType(String type) {
         this.type = type;
+    }
+    
+    public String toString() {
+        return getName();
     }
 }
