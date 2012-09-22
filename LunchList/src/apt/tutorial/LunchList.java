@@ -1,7 +1,8 @@
 package apt.tutorial;
 
-import android.app.TabActivity;
+import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -12,30 +13,27 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioGroup;
-import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LunchList extends TabActivity {
+public class LunchList extends ListActivity {
 
+    public static final String ID_EXTRA = "apt.tutorial._ID";
     Cursor model = null;
     RestaurantAdapter adapter = null;
     EditText name = null;
     EditText address = null;
-    RadioGroup types = null;
     EditText notes = null;
-    Restaurant current = null;
+    RadioGroup types = null;
+    RestaurantHelper helper = null;
     int progress = 0;
     AtomicBoolean isActive = new AtomicBoolean(true);
-    RestaurantHelper helper = null;
 
     /**
      * Called when the activity is first created.
@@ -50,41 +48,28 @@ public class LunchList extends TabActivity {
 
         name = (EditText) findViewById(R.id.name);
         address = (EditText) findViewById(R.id.addr);
-        types = (RadioGroup) findViewById(R.id.types);
         notes = (EditText) findViewById(R.id.notes);
-
-        Button save = (Button) findViewById(R.id.save);
-
-        save.setOnClickListener(onSave);
-
-        ListView list = (ListView) findViewById(R.id.restaurants);
+        types = (RadioGroup) findViewById(R.id.types);
 
         model = helper.getAll();
         startManagingCursor(model);
         adapter = new RestaurantAdapter(model);
-        list.setAdapter(adapter);
-
-        TabHost.TabSpec spec = getTabHost().newTabSpec("tag1");
-
-        spec.setContent(R.id.restaurants);
-        spec.setIndicator("List", getResources().getDrawable(R.drawable.list));
-        getTabHost().addTab(spec);
-
-        spec = getTabHost().newTabSpec("tag2");
-        spec.setContent(R.id.details);
-        spec.setIndicator("Details", getResources().getDrawable(R.drawable.restaurant));
-        getTabHost().addTab(spec);
-
-        getTabHost().setCurrentTab(0);
-
-        list.setOnItemClickListener(onListClick);
+        setListAdapter(adapter);
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
 
         helper.close();
+    }
+
+    @Override
+    public void onListItemClick(ListView list, View view, int position, long id) {
+        Intent i = new Intent(LunchList.this, DetailForm.class);
+
+        i.putExtra(ID_EXTRA, String.valueOf(id));
+        startActivity(i);
     }
 
     @Override
@@ -99,8 +84,8 @@ public class LunchList extends TabActivity {
         if (item.getItemId() == R.id.toast) {
             String message = "No restaurant selected";
 
-            if (current != null) {
-                message = current.getNotes();
+            if (model != null) {
+                message = helper.getNotes(model);
             }
 
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
@@ -108,6 +93,10 @@ public class LunchList extends TabActivity {
             return true;
         } else if (item.getItemId() == R.id.run) {
             startWork();
+
+            return true;
+        } else if (item.getItemId() == R.id.add) {
+            startActivity(new Intent(LunchList.this, DetailForm.class));
 
             return true;
         }
@@ -170,25 +159,6 @@ public class LunchList extends TabActivity {
             model.requery();
         }
     };
-    private AdapterView.OnItemClickListener onListClick = new AdapterView.OnItemClickListener() {
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            model.moveToPosition(position);
-
-            name.setText(helper.getName(model));
-            address.setText(helper.getAddress(model));
-            notes.setText(helper.getNotes(model));
-
-            if (helper.getType(model).equals("sit_down")) {
-                types.check(R.id.sit_down);
-            } else if (helper.getType(model).equals("take_out")) {
-                types.check(R.id.take_out);
-            } else {
-                types.check(R.id.delivery);
-            }
-
-            getTabHost().setCurrentTab(1);
-        }
-    };
     private Runnable longTask = new Runnable() {
         public void run() {
             for (int i = progress; i < 10000 && isActive.get(); i += 200) {
@@ -224,9 +194,9 @@ public class LunchList extends TabActivity {
             LayoutInflater inflater = getLayoutInflater();
             View row = inflater.inflate(R.layout.row, parent, false);
             RestaurantHolder holder = new RestaurantHolder(row);
-            
+
             row.setTag(holder);
-            
+
             return row;
         }
     }
